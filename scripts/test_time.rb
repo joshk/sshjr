@@ -66,8 +66,8 @@ require 'jsshj'
 
 ssh  = Jsshj::SSHClient.new
 ssh.accept_all_hosts
-ssh.connect("67.214.220.219")
-ssh.auth_password('travis', 'yumyumyum123!@#')
+ssh.connect(ENV["SSH_HOST"])
+ssh.auth_password(ENV.fetch("SSH_USER"), ENV["SSH_PASSWORD"])
 
 session = ssh.start_session
 
