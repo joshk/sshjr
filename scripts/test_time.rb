@@ -1,3 +1,5 @@
+require "jsshj/vendor"
+
 import 'net.schmizz.sshj.common.IOUtils'
 import 'java.util.concurrent.TimeUnit'
 import 'net.schmizz.sshj.common.Buffer'
