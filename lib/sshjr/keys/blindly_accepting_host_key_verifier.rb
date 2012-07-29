@@ -1,5 +1,5 @@
-module Jsshj
-  module Client
+module SSHJr
+  module Keys
     class BlindlyAcceptingHostKeyVerifier
       def verify(host, port, key)
        true
