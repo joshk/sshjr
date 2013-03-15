@@ -40,6 +40,18 @@ describe SSHJr::Client, "with all-accepting host key verifier" do
       session.close
       client.close
     end
+
+    it "gets the status code" do
+      client  = SSHJr::Client.start(hostname, username, :password => password, :port => port)
+      session = client.start_session
+
+      result  = session.exec "echo foobar"
+      result.join
+      result.exit_status.should be 0
+
+      session.close
+      client.close
+    end
   end
 
   context "with correct key credentials" do
