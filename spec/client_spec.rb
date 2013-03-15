@@ -6,6 +6,7 @@ describe SSHJr::Client, "with all-accepting host key verifier" do
   let(:hostname) { ENV["SSHTEST_HOSTNAME"] }
   let(:username) { ENV["SSHTEST_USERNAME"] }
   let(:password) { ENV["SSHTEST_PASSWORD"] }
+  let(:port)     { ENV["SSHTEST_PORT"].to_i }
 
   let(:rsa_key_path) { Pathname.getwd.join("spec", "keys", "key1_rsa") }
   let(:dsa_key_path) { Pathname.getwd.join("spec", "keys", "key2_dsa") }
@@ -13,14 +14,14 @@ describe SSHJr::Client, "with all-accepting host key verifier" do
 
   context "with correct password credentials" do
     it "connects successfully" do
-      client = SSHJr::Client.start(hostname, username, :password => password)
+      client = SSHJr::Client.start(hostname, username, :password => password, :port => port)
 
       client.should be_connected
       client.close
     end
 
     it "opens a session successfully" do
-      client  = SSHJr::Client.start(hostname, username, :password => password)
+      client  = SSHJr::Client.start(hostname, username, :password => password, :port => port)
       session = client.start_session
 
       session.should be_open
@@ -29,7 +30,7 @@ describe SSHJr::Client, "with all-accepting host key verifier" do
     end
 
     it "executes a command successfully" do
-      client  = SSHJr::Client.start(hostname, username, :password => password)
+      client  = SSHJr::Client.start(hostname, username, :password => password, :port => port)
       session = client.start_session
 
       result  = session.exec "ping -c 1 google.com"

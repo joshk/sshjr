@@ -20,7 +20,7 @@ module SSHJr
       @impl     = SSHClient.new
 
       add_host_verifier(@impl, options)
-      @impl.connect(hostname)
+      options[:port] ? @impl.connect(hostname, options[:port]) : @impl.connect(hostname)
       authenticate(@impl, username, options)
     end
 
