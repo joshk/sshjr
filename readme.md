@@ -1,4 +1,4 @@
-JrJackson
+sshjr
 =========
 
 A JRuby library wrapping the Java [SSHJ Jars](https://github.com/shikhar/sshj)
@@ -8,16 +8,11 @@ This gem also adds similar functionality to [net-ssh-shell](https://github.com/m
 Installation
 ------------
 
-```shell
-gem install jsshj
-```
-
-or, in your Gemfile
+In your Gemfile:
 
 ```ruby
-gem 'jsshj'
+gem 'sshjr', :github => 'joshk/sshjr'
 ```
-
 
 Usage Examples
 --------------
