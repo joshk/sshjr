@@ -8,11 +8,15 @@ This gem also adds similar functionality to [net-ssh-shell](https://github.com/m
 Installation
 ------------
 
-    gem install sshjr
+```shell
+gem install jsshj
+```
 
 or, in your Gemfile
 
-    gem 'sshjr'
+```ruby
+gem 'jsshj'
+```
 
 
 Usage Examples
