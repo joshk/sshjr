@@ -1,4 +1,5 @@
 require "sshjr/keys/blindly_accepting_host_key_verifier"
+require 'sshjr/command'
 
 module SSHJr
   import 'net.schmizz.sshj.SSHClient'
@@ -24,8 +25,10 @@ module SSHJr
       authenticate(@impl, username, options)
     end
 
-    def start_session
-      @impl.start_session
+    def exec_with_pty(command)
+      session = @impl.start_session
+      session.allocate_default_pty
+      Command.new(session.exec(command))
     end
 
     def connected?
