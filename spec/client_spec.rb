@@ -13,14 +13,14 @@ describe SSHJr::Client, "with all-accepting host key verifier" do
   let(:key_paths)    { [rsa_key_path, dsa_key_path] }
 
   context "with correct password credentials" do
-    it "connects successfully" do
+    xit "connects successfully" do
       client = SSHJr::Client.start(hostname, username, :password => password, :port => port)
 
       client.should be_connected
       client.close
     end
 
-    it "opens a session successfully" do
+    xit "opens a session successfully" do
       client  = SSHJr::Client.start(hostname, username, :password => password, :port => port)
       session = client.start_session
 
@@ -29,7 +29,7 @@ describe SSHJr::Client, "with all-accepting host key verifier" do
       client.close
     end
 
-    it "executes a command successfully" do
+    xit "executes a command successfully" do
       client  = SSHJr::Client.start(hostname, username, :password => password, :port => port)
       session = client.start_session
 
@@ -41,7 +41,7 @@ describe SSHJr::Client, "with all-accepting host key verifier" do
       client.close
     end
 
-    it "gets the status code" do
+    xit "gets the status code" do
       client  = SSHJr::Client.start(hostname, username, :password => password, :port => port)
       session = client.start_session
 
