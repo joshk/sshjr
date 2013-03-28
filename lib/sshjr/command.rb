@@ -46,9 +46,9 @@ module SSHJr
     private
 
     def process_output_io(io)
-      output_str = io.read_nonblock(1024)
+      output_str = Timeout.timeout(0.5) { io.read }
       @on_output.each { |cb| cb.call(output_str) }
-    rescue EOFError, Errno::EWOULDBLOCK, Errno::EAGAIN
+    rescue EOFError, Timeout::Error
     end
   end
 end
