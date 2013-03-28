@@ -43,7 +43,8 @@ module SSHJr
     def process_output_io(io)
       output_str = io.read_nonblock(1024)
       @on_output.each { |cb| cb.call(output_str) }
-    rescue EOFError
+    rescue EOFError, Errno::EWOULDBLOCK, Errno::EAGAIN
+      retry if IO.select([io], nil, nil, 1.0)
     end
   end
 end
