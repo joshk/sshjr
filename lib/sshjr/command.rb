@@ -23,8 +23,8 @@ module SSHJr
     #
     # Returns the exit status of the command
     def process(&block)
-      output = @java_command.input_stream.to_io
-      error = @java_command.error_stream.to_io
+      output = @java_command.input_stream
+      error = @java_command.error_stream
 
       until @java_command.exit_status
         process_output_io(output)
@@ -46,9 +46,11 @@ module SSHJr
     private
 
     def process_output_io(io)
-      output_str = Timeout.timeout(0.5) { io.read(1024) }
-      @on_output.each { |cb| cb.call(output_str) } if output_str
-    rescue EOFError, Timeout::Error
+      if io.available > 0
+        output_str = io.to_io.read(io.available)
+        @on_output.each { |cb| cb.call(output_str) }
+      end
+    rescue EOFError
     end
   end
 end
