@@ -26,12 +26,17 @@ module SSHJr
       output = @java_command.input_stream.to_io
       error = @java_command.error_stream.to_io
 
-      until output.eof? && error.eof?
+      until @java_command.exit_status
         process_output_io(output)
         process_output_io(error)
 
         break if block && block.call
       end
+
+      # Hack to make sure we get all the output (probably)
+      sleep(3)
+      process_output_io(output)
+      process_output_io(error)
 
       @java_command.exit_status
     ensure
