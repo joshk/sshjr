@@ -47,7 +47,7 @@ module SSHJr
 
     def process_output_io(io)
       output_str = Timeout.timeout(0.5) { io.read(1024) }
-      @on_output.each { |cb| cb.call(output_str) }
+      @on_output.each { |cb| cb.call(output_str) } if output_str
     rescue EOFError, Timeout::Error
     end
   end
