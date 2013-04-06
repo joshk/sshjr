@@ -23,34 +23,22 @@ module SSHJr
     #
     # Returns the exit status of the command
     def process(&block)
-      output = @java_command.input_stream
-      error = @java_command.error_stream
+      output = @java_command.input_stream.to_io
+      error = @java_command.error_stream.to_io
 
-      until @java_command.exit_status
-        process_output_io(output)
-        process_output_io(error)
+      until output.eof? && error.eof?
+        read, write, err = IO.select([output, error], [], [], 1.0)
+        read.each do |io|
+          str = io.read(1024)
+          @on_output.each { |cb| cb.call(str) } if str
+        end
 
         break if block && block.call
       end
 
-      # Hack to make sure we get all the output (probably)
-      sleep(3)
-      process_output_io(output)
-      process_output_io(error)
-
       @java_command.exit_status
     ensure
       @java_command.close
-    end
-
-    private
-
-    def process_output_io(io)
-      if io.available > 0
-        output_str = io.to_io.read(io.available)
-        @on_output.each { |cb| cb.call(output_str) }
-      end
-    rescue EOFError
     end
   end
 end
