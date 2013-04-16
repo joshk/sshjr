@@ -1,68 +1,74 @@
-require "sshjr/keys/blindly_accepting_host_key_verifier"
 require 'sshjr/command'
+require 'sshjr/keys/blindly_accepting_host_key_verifier'
 
 module SSHJr
-  import 'net.schmizz.sshj.SSHClient'
-
+  # Wraps a connection to a server
+  #
+  # This is probably one of the first classes you will be interacting with when
+  # using SSHJr. It's responsible for setting up a connection to the server and
+  #
+  # Example:
+  #
+  #   client = SSHJr::Client.new
+  #   client.connect('example.com')
+  #   client.authenticate(authentication_method)
+  #   command = client.exec_with_pty('echo Hello World')
   class Client
+    class AuthenticationError < StandardError; end
 
+    # Public: Connect to the server with the given connection details.
     #
-    # API
+    # hostname - The hostname or IP address to connect to.
+    # port     - The port the SSH server is running on (default: 22).
     #
-
-    def self.start(*args)
-      new(*args)
+    # Returns nothing.
+    # Raises IOError if there was an error connecting to the server.
+    def connect(hostname, port=22)
+      client.connect(hostname, port)
+    rescue java.io.IOException => e
+      raise IOError, e.message
     end
 
-    def initialize(hostname, username, options = {})
-      @hostname = hostname
-      @username = username
+    # Public: Returns whether or not we are connected to the SSH server.
+    def connected?
+      client.connected?
+    end
 
-      @impl     = SSHClient.new
-
-      add_host_verifier(@impl, options)
-      options[:port] ? @impl.connect(hostname, options[:port]) : @impl.connect(hostname)
-      authenticate(@impl, username, options)
+    # Authenticate the session with a given authentication method
+    #
+    # authentication_method - The authentication method to use. See SSHJr::Auth
+    #                         for available authentication methods.
+    #
+    # Returns nothing.
+    # Raises AuthenticationError if there was an error authenticating with the
+    #   given authentication method.
+    def authenticate(authentication_method)
+      authentication_method.authenticate(client)
     end
 
     def exec_with_pty(command)
-      session = @impl.start_session
+      session = client.start_session
       session.allocate_default_pty
       Command.new(session.exec(command))
     end
 
-    def connected?
-      @impl.connected?
-    end
-
+    # Public: Disconnect from the connected SSH server
+    #
+    # This method should be called from an `ensure` block to properly clean up
+    # everything, including the thread spawned to deal with incoming packets.
+    #
+    # Returns nothing.
     def close
-      @impl.close
+      client.close
     end
 
+    private
 
-    protected
-
-    def authenticate(sshj_client, username, options)
-      if pwd = options[:password]
-        sshj_client.auth_password(username, pwd)
-      elsif (key_paths = filter_paths(options[:private_key_paths])).any?
-        sshj_client.auth_publickey(username, key_paths.to_java(:string))
-      else
-        raise ArgumentError, "Cannot perform authentication: either :private_key_paths or :password must be give to SSHJr::Client.start and SSHJr::Client#initialize."
-      end
-    end
-
-    def add_host_verifier(sshj_client, options)
-      verifier = options.fetch(:host_key_verifier, Keys::BlindlyAcceptingHostKeyVerifier.new)
-
-      sshj_client.add_host_key_verifier(verifier)
-    end
-
-    def filter_paths(xs)
-      if xs
-        xs.select { |x| File.exists?(x) }.map {|x| x.to_s}
-      else
-        []
+    # Internal: The sshj Java SSH client backend instance.
+    def client
+      @client ||= Java::NetSchmizzSshj::SSHClient.new.tap do |client|
+        # TODO: Expose host key verification through an API
+        client.add_host_key_verifier(Keys::BlindlyAcceptingHostKeyVerifier.new)
       end
     end
   end

@@ -2,7 +2,7 @@ module SSHJr
   module Keys
     class BlindlyAcceptingHostKeyVerifier
       def verify(host, port, key)
-       true
+        true
       end
     end
   end
